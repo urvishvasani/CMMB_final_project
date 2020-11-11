@@ -549,15 +549,20 @@ function driver()
     num_of_generations = 500
     mutation_prob = 0.8
     
-    optimal_individual = NSGA(sequences, population_size, num_of_generations, mutation_prob)
-    optimal_align = optimal_individual.align
-    score = optimal_individual.y[2]
-    
     println("Input sequences:")
     for each in sequences
         println(each)
     end
     println()
+    
+    println("Alignment process started:")
+    println()
+    
+    optimal_individual = @timed NSGA(sequences, population_size, num_of_generations, mutation_prob)
+    optimal_align = optimal_individual.value.align
+    score = optimal_individual.value.y[2]
+    
+    
     println("Generated alignments:")
     for each in optimal_align
         println(each)
@@ -565,8 +570,8 @@ function driver()
     println()
     println("Sum of pairs scor[+1 for match, 0 otherwise]: ", score) 
     println()
-    
-    println("This alignment is stored in the output1.txt file")
+    println("Total time taken to align the sequence (in seconds): ", optimal_individual.time)
+    println()
     
     open("output1.txt", "w") do file
         for i in 1:length(optimal_align)
@@ -574,6 +579,9 @@ function driver()
             write(file, optimal_align[i]*"\n")
         end
     end
+    
+    println("This alignment is stored in the output1.txt file")
+    
 end
 driver()
 

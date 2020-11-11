@@ -1,6 +1,5 @@
 # Multiple Sequence Alignment using multi-objective optimization approach
 
-
 ## Requirements for external libraries
 - First cell of the MSA.ipynb installs and imports all the library required for the successful execution of the code.
 
@@ -13,6 +12,6 @@
 - Generated output will be stored in FASTA format.
 
 ## Execution
-- Open the notebook "MSA.ipynb" and hit "run all cells".
+- Open the notebook "MSA.ipynb" and hit "cells -> run all" if you are running from jupyter notebook.
+- To run the "MSA.jl" file, run the following command: "julia MSA.jl"
 
-## 
