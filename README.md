@@ -32,3 +32,5 @@ Here, FASTA formatted input is present inside "input1.txt". Output alignments ar
 * To provide the custom file for input, change the filename in the function call of "generate_alignments".
 * This notebook also contains the code to generate plots which demonstrates the performance of the proposed approach for various aspects. This code is not present inside the julia package.
 
+
+### Note: Detailed description of each functions are present inside jupyter markdown. 
