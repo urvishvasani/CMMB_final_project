@@ -1,7 +1,8 @@
 # Multiple Sequence Alignment using multi-objective optimization approach
 
 ## Requirements for external libraries
-- First cell of the MSA.ipynb installs and imports all the library required for the successful execution of the code.
+- First cell of the "MSA.ipynb" installs and imports all the library required for the successful execution of the code. 
+- Similarly, "MSA.jl" file automatically installs and imports all required libraries.
 
 ## Input
 - This implementation reads the input sequences for the multiple sequence alignment from the "input1.txt" file.

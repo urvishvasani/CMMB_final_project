@@ -26,8 +26,6 @@ function codify_chromosome(msa)
     
     return chromosome
 end
-#codify_chromosome(["ABCDEFGH--","AB----CDEF","ABCD----EF"])
-
 
 function remove_columns_with_all_gaps(sequences, codifications)
     columns_with_all_gaps = []
@@ -58,8 +56,6 @@ function remove_columns_with_all_gaps(sequences, codifications)
     return sequences, codifications
 end
                                 
-#remove_columns_with_all_gaps(["ab---fg","ab---fg","ab-c-fg","ab---fg"], [[1,2,-2,-2,-2,3,4],[1,2,-2,-2,-2,3,4],[1,2,-2,3,-3,4,5],[1,2,-2,-2,-2,3,4]])
-
 
 function get_cut_point(cut_elements,chromosome_coded)
     cut_point = 0
@@ -123,8 +119,6 @@ function crossover(chromosome_string1, chromosome_coded1,chromosome_string2, chr
     return crossover_string,crossover_coded
     
 end
-
-#crossover(["ACGTT--AC-G-GG-", "A-GGCTTTAGG-CG-", "AG-G-CT-ATGCAGG"],[[1, 2, 3, 4, 5, -5, -5, 6, 7, -7, 8, -8, 9, 10, -10], [1, -1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -10, 11, 12, -12], [1, 2, -2, 3, -3, 4, 5, -5, 6, 7, 8, 9, 10, 11, 12]],["AC--G--TTA-CGGG", "AGGC-T-T-TAGGCG", "A-GGCTATGC-A-GG"],[[1, 2, -2, -2, 3, -3, -3, 4, 5, 6, -6, 7, 8, 9, 10], [1, 2, 3, 4, -4, 5, -5, 6, -6, 7, 8, 9, 10, 11, 12], [1, -1, 2, 3, 4, 5, 6, 7, 8, 9, -9, 10, -10, 11, 12]])
 
 function mutation(parent_sequence, parent_codification)
     child_sequence = []
@@ -191,8 +185,6 @@ function mutation(parent_sequence, parent_codification)
     
     child_sequence,child_codification = remove_columns_with_all_gaps(child_sequence, child_codification)
 end
-
-#mutation(["abcd---cd--ef-cde-", "abcd---cd--ef-cdef"], [[1,2,3,4,-4,-4,-4,5,6,-6,-6,7,8,-8,9,10,11,-11],[1,2,3,4,-4,-4,-4,5,6,-6,-6,7,8,-8,9,10,11,12]])
 
 
 function add_initial_gaps(gap_count,sequence)
@@ -261,8 +253,6 @@ function generate_initial_population(msa,population_count)
     end
     return population_string, population_coded
 end    
-
-#generate_initial_population(["ACGTTACCCGGAAATTTTTTACGGG","ACGTTACCTGGGAATATTGTACAGG","GTGTAAGGTGGGAATATTTFAGAGG"],100)
 
 function compute_tc_score(sequences)
     no_of_aligned_columns = 0
@@ -350,9 +340,6 @@ end
 function calculate_fitness_score(align)
     return [compute_tc_score(align), calc_sum_pair(align), calc_nogap_percentage(align), calc_sum_pair2(align)]
 end
-#Test 
-#sequences = ["AGGCTTT-A-C", "CCCAGTG-AT-","GGCFATT-AT-"]
-#print(calculate_fitness_score(sequences))
 
 # Basic structure to store the individuals and helper functions
 
@@ -520,8 +507,6 @@ function NSGA(input_seq, population_size, num_of_gen, pmut)
     
 end
 
-#input_seq = ["AATGGTCATAGCGAGATGAAGCCACGTGATGGATAATATTGTGCAAACGACCTTATTAGCTATTGACCGTCGATGTCCAACGAGACAATT", "GAATCTGTATTCTTCAAGCTTCAACTCCATGCACTACGAACGGTAGTGGTTCACATTGACCGTG", "TTGGGCGCATTGACCGTCCTTCCTAGCGTATCATCAAACTTGTGATTCTCTATCTAGAGCAAAATGCGGTGTCCGCTATATGGAGATCTATTTCAAAATA", "GTTACATATCAGAATCATTAGAAACGCTCTTAATGGGGTTAAGCAGAGACTTAGTAAGGATTAACTCCCAAGATGATTGACCGTGCTC"]
-#NSGA(input_seq,100,300,0.8)
 
 # Read sequences from the input file
 # Reference: https://biojulia.net/FASTX.jl/dev/manual/fasta/
@@ -543,8 +528,8 @@ end
 #read_input("input1.txt")
 
 
-function driver()
-    identifiers, sequences = read_input("input1.txt")
+function generate_alignments(file_name)
+    identifiers, sequences = read_input(file_name)
     population_size = 200
     num_of_generations = 500
     mutation_prob = 0.8
@@ -583,259 +568,5 @@ function driver()
     println("This alignment is stored in the output1.txt file")
     
 end
-driver()
-
-function generate_dna_sequences(t,l)
-    """
-    This function generated the random DNA Sequences for the experiments conducted below.
-    """
-    dna_sequences=[]
-    for i in 1:t
-        dna=randstring("AGTC", l)
-        push!(dna_sequences,dna)
-    end
-    return dna_sequences
-end
-
-function NSGA_Experiment(input_seq, population_size, num_of_gen, pmut)
-    """
-    This is a little modification to above implemented NSGA function which reports the results after certain number of generations for the experiments purpose.
-    """
-    alignments, codes = generate_initial_population(input_seq, population_size)
-    P = Vector{Individual}(undef, 2*population_size)    # Whole population 
-    for i in 1:population_size                                # Create Initial population
-        P[i] = Individual(alignments[i],codes[i], calculate_fitness_score(alignments[i])) 
-        P[population_size+i] = deepcopy(P[i])
-    end
-    calculate_Pareto_Fronts!(view(P, 1:population_size))
-    generations=[]
-    align_score=[]
-    for g in 50:20:250
-        append!(generations,g)
-    end
-    for gen in 1:num_of_gen
-        for i = 1:2:population_size
-            pa = tournament_selection(P)
-            pb = tournament_selection(P)
-            childs_align, childs_codification = crossover(pa.align, pa.codification, pb.align, pb.codification)
-            if rand() < pmut
-                childs_align[1],childs_codification[1] = mutation(childs_align[1],childs_codification[1])
-            end
-            if rand() < pmut
-                childs_align[2], childs_codification[2] = mutation(childs_align[2],childs_codification[2])
-            end
-            P[population_size+i] = Individual(childs_align[1],childs_codification[1], calculate_fitness_score(childs_align[1])) 
-            P[population_size+i+1] = Individual(childs_align[2],childs_codification[2], calculate_fitness_score(childs_align[2])) 
-        end
-        calculate_Pareto_Fronts!(P)
-        sort!(P, by = x -> x.rank, alg = Base.Sort.QuickSort)
-        let f::Int = 1
-            ind = 0
-            indnext = findlast(x -> x.rank == f, P)
-            while 0 < indnext <= population_size
-                ind = indnext
-                f += 1
-                indnext = findlast(x -> x.rank == f, P)
-            end
-            indnext == 0 && (indnext = length(P))
-            crowding_distance_sorting!(view(P, ind+1:indnext))
-            sort!(view(P, (ind + 1):indnext), by = x -> x.crowding, rev = true, alg = PartialQuickSort(population_size - ind))
-        end
-        if gen in generations
-            optimal_sols = filter(x -> x.rank == 1, view(P, 1:population_size))
-            best_sol = optimal_sols[1]
-            for i in 2:length(optimal_sols)
-                if optimal_sols[i].y[2] > best_sol.y[2]
-                     best_sol = optimal_sols[i]
-                end 
-            end
-            append!(align_score,best_sol.y[2])
-        end
-    end
-    return generations, align_score
-end
-#input_seq = ["AATGGTCATAGCGAGATGAAGCCACGTGATGGATAATATTGTGCAAACGACCTTATTAGCTATTGACCGTCGATGTCCAACGAGACAATT", "GAATCTGTATTCTTCAAGCTTCAACTCCATGCACTACGAACGGTAGTGGTTCACATTGACCGTG", "TTGGGCGCATTGACCGTCCTTCCTAGCGTATCATCAAACTTGTGATTCTCTATCTAGAGCAAAATGCGGTGTCCGCTATATGGAGATCTATTTCAAAATA", "GTTACATATCAGAATCATTAGAAACGCTCTTAATGGGGTTAAGCAGAGACTTAGTAAGGATTAACTCCCAAGATGATTGACCGTGCTC"]
-#NSGA(input_seq,100,300,0.8)
-
-function plot_graphs()
-    """
-    This function plots the above mentioned four graphs in order to assess the performance of the algorithm.
-    """
-    population_size = 100
-    num_of_generations = 250
-    mutation_prob = 0.2
-    dna_length = 20
-    num_of_sequences = 10
-    time_taken=[]
-    sequences = generate_dna_sequences(num_of_sequences,dna_length)
-    generations, align_score = NSGA_Experiment(sequences, population_size, num_of_generations,mutation_prob)
-    for g in 50:20:250
-        curr_time=0
-        curr_time = @timed begin
-            best_sol = NSGA(sequences, population_size, g, mutation_prob)
-        end
-        append!(time_taken,curr_time[2])
-    end
-    sequence_time=[]
-    sequence_memory=[]
-    sequence_length=[]
-    for s in 10:2:30
-        sequences = generate_dna_sequences(num_of_sequences,s)
-        time_memory = @timed begin
-            NSGA(sequences, population_size, num_of_generations, mutation_prob)
-        end
-        append!(sequence_time, time_memory[2])
-        append!(sequence_memory, (time_memory[3]/1000000))
-        append!(sequence_length, s)
-    end
-    p1 = plot( generations, time_taken, ylabel = "Time taken (in seconds)", xlabel = "No. of Generations", title = "Generations Vs Time")
-    p2 = plot(generations, align_score, ylabel = "Alignment Score (SOP score)", xlabel = "No. of Generations", title = "Generations vs Alignment Score")
-    p3 = plot(sequence_length,sequence_time, ylabel = "Time taken (in seconds)", xlabel = "Sequence length", title = "Sequence length Vs Time")
-    p4 = plot(sequence_length, sequence_memory, ylabel = "Memory (in MB)", xlabel = "Sequence length", title = "Sequence length Vs Memory")
-    display(p1)
-    display(p2)
-    display(p3)
-    display(p4)
-end
-#plot_graphs()
-
-
-function generate_initial_population_from_align(population_count,alignments) 
-    without_crossover = length(alignments)
-    
-    population_string = []
-    population_coded = []
-    
-    
-    for i in 1:without_crossover
-        coded_chromosome = codify_chromosome(alignments[i])
-        push!(population_coded,coded_chromosome)
-        push!(population_string,alignments[i])
-    end
-    
-    with_crossover = (population_count - without_crossover)/2
-    for i in 1:with_crossover
-        random1 = Int(rand(1:without_crossover))
-        random2 = Int(rand(1:without_crossover))
-        crossover_string, crossover_coded = crossover(population_string[random1],population_coded[random1],population_string[random2],population_coded[random2])
-        population_string = vcat(population_string,crossover_string)
-        population_coded = vcat(population_coded,crossover_coded)
-    end
-    
-    return population_string, population_coded
-end   
-
-
-function NSGA_for_balibase(input_alignments, population_size, num_of_gen, pmut)
-    alignments, codes = generate_initial_population_from_align(population_size,input_alignments)
-    
-    P = Vector{Individual}(undef, 2*population_size)    # Whole population 
-    
-    for i in 1:population_size                                # Create Initial population
-        P[i] = Individual(alignments[i],codes[i], calculate_fitness_score(alignments[i])) 
-        P[population_size+i] = deepcopy(P[i])
-    end
-    
-    calculate_Pareto_Fronts!(view(P, 1:population_size))
-    
-    for gen in 1:num_of_gen
-        for i = 1:2:population_size
-            
-            pa = tournament_selection(P)
-            pb = tournament_selection(P)
-            
-            childs_align, childs_codification = crossover(pa.align, pa.codification, pb.align, pb.codification)
-            
-            if rand() < pmut
-                childs_align[1],childs_codification[1] = mutation(childs_align[1],childs_codification[1])
-            end
-                
-            if rand() < pmut
-                childs_align[2], childs_codification[2] = mutation(childs_align[2],childs_codification[2])
-            end
-            
-            P[population_size+i] = Individual(childs_align[1],childs_codification[1], calculate_fitness_score(childs_align[1])) 
-            P[population_size+i+1] = Individual(childs_align[2],childs_codification[2], calculate_fitness_score(childs_align[2])) 
-            
-        end
-        calculate_Pareto_Fronts!(P)
-        
-        sort!(P, by = x -> x.rank, alg = Base.Sort.QuickSort)
-        
-        let f::Int = 1
-            ind = 0
-            indnext = findlast(x -> x.rank == f, P)
-            while 0 < indnext <= population_size
-                ind = indnext
-                f += 1
-                indnext = findlast(x -> x.rank == f, P)
-            end
-            indnext == 0 && (indnext = length(P))
-            crowding_distance_sorting!(view(P, ind+1:indnext))
-            sort!(view(P, (ind + 1):indnext), by = x -> x.crowding, rev = true, alg = PartialQuickSort(population_size - ind))
-            
-        end
-        
-    end
-    optimal_sols = filter(x -> x.rank == 1, view(P, 1:population_size))
-    
-    best_sol = optimal_sols[1]
-    for i in 2:length(optimal_sols)
-        if optimal_sols[i].y[2] > best_sol.y[2]
-             best_sol = optimal_sols[i]
-        end 
-    end
-    
-    return best_sol
-    
-end
-
-# Experiments for the result section
-
-function experiment(version_name)
-    release_dir = "bb3_dataset\\"*version_name
-    align_dir = "bb3_aligned\\"*version_name
-    
-    files = readdir(release_dir)
-    
-    aligned_files = [".msf_tfa",".tfa_clu",".tfa_fsa",".tfa_kalign",".tfa_mafft",".tfa_muscle",".tfa_probcons",".tfa_retalign"]
-
-    
-    population_size = 100
-    num_of_generations = 300
-    mutation_prob = 0.5
-    
-    for file_name in files
-        if file_name[end-3:end] != ".tfa"
-           continue 
-        end
-        
-        alignments = []
-        
-        for af in aligned_files
-            name = align_dir*"\\"*file_name[1:end-4]*af
-            _, sequences = read_input(name)
-            push!(alignments, sequences)
-            score = calc_sum_pair(sequences)
-            println(file_name[1:end-4]*af, " : ", score)
-        end
-        
-        optimal_align = NSGA_for_balibase(alignments, population_size, num_of_generations, mutation_prob).align
-        score = calc_sum_pair(optimal_align)
-        
-        println(file_name, " : ", round(score, digits=4))
-        
-        println("-----------------------------------------------------")
-        
-    end
-    
-end
-
-#experiment("RV11")
-#experiment("RV12")
-#experiment("RV20")
-#experiment("RV30")
-#experiment("RV40")
-#experiment("RV50")
-
+#generate_alignments("input1.txt")
 
